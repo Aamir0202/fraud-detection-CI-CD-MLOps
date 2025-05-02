@@ -1,33 +1,26 @@
 pipeline {
- agent any
- stages {
- stage('Clone Repository') {
- steps {
- git 'https://github.com/mohamadsolouki/MLOps.git'
- }
- }
- stage('Build Docker Image') {
- steps {
- sh 'docker build -t fraud-detector .'
- }
- }
- stage('Run Unit Tests') {
-steps {
- sh 'docker run fraud-detector pytest tests/'
- }
- }
- stage('Push to Docker Registry') {
- steps {
- withDockerRegistry([credentialsId: 'docker-hub-credentials']) {
- sh 'docker tag fraud-detector mydockerhub/fraud-detector:latest'
- sh 'docker push mydockerhub/fraud-detector:latest'
- }
- }
- }
- stage('Deploy Model') {
-steps {
- sh 'docker run -d -p 8000:8080 mydockerhub/fraud-detector:latest'
- }
- }
- }
- }
+    agent any
+
+    stages {
+        stage('Build Docker Image') {
+            steps {
+                bat 'docker build -t fraud-detector .'
+            }
+        }
+
+        stage('Push to Docker Registry') {
+            steps {
+                withDockerRegistry([credentialsId: 'docker-hub-credentials', url: '']) {
+                    bat 'docker tag fraud-detector aamir0202/fraud-detector:latest'
+                    bat 'docker push aamir0202/fraud-detector:latest'
+                }
+            }
+        }
+
+        stage('Deploy Model') {
+            steps {
+                bat 'docker run -d -p 5002:8080 aamir0202/fraud-detector:latest'
+            }
+        }
+    }
+}
